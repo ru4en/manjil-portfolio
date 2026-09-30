@@ -14,10 +14,25 @@ on:
         type: string
         default: "Example Company"
       job_type:
-        description: "Optional job type (full-time, contract, internship…)"
+        description: "Optional job type"
         required: false
-        type: string
-        default: ""
+        type: choice
+        options:
+          - ""
+          - contract
+          - full-time
+          - internship
+      focus:
+        description: "Content focus (auto detects from job title if left as auto)"
+        required: true
+        type: choice
+        options:
+          - auto
+          - editor
+          - sound
+          - director
+          - general
+        default: auto
       include_phone:
         description: "Include phone number on CV & CL"
         required: true
@@ -68,12 +83,13 @@ jobs:
           echo "JOB_TITLE=${{ inputs.job_title }}" >> $GITHUB_ENV
           echo "COMPANY=${{ inputs.company }}" >> $GITHUB_ENV
           echo "JOB_TYPE=${{ inputs.job_type }}" >> $GITHUB_ENV
+          echo "FOCUS=${{ inputs.focus }}" >> $GITHUB_ENV
           echo "INCLUDE_PHONE=${{ inputs.include_phone }}" >> $GITHUB_ENV
           echo "CV_ONLY=${{ inputs.cv_only }}" >> $GITHUB_ENV
           # Fixed personal details (edit here or move to secrets if preferred)
           echo "NAME=Manjil Sahani" >> $GITHUB_ENV
           echo "LOCATION=Swindon, United Kingdom" >> $GITHUB_ENV
-          echo "PHONE=+44 0 0" >> $GITHUB_ENV
+          echo "PHONE=+44 00000000000" >> $GITHUB_ENV
           echo "EMAIL=sahanimanjil17@outlook.com" >> $GITHUB_ENV
           echo "PORTFOLIO=https://manjilfr.wixsite.com/portfolio" >> $GITHUB_ENV
           echo "LINKEDIN=https://www.linkedin.com/in/manjil-sahani-0317a624" >> $GITHUB_ENV
@@ -84,6 +100,7 @@ jobs:
             JOB_TITLE="$JOB_TITLE" \
             COMPANY="$COMPANY" \
             JOB_TYPE="$JOB_TYPE" \
+            FOCUS="$FOCUS" \
             INCLUDE_PHONE="$INCLUDE_PHONE" \
             CV_ONLY="$CV_ONLY" \
             NAME="$NAME" \

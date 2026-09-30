@@ -1,35 +1,51 @@
-% cl.tex — parameterized cover letter template
-% Placeholders: {{JOB_TITLE}}, {{COMPANY}}, {{JOB_TYPE_PHRASE}}, {{NAME}}, {{LOCATION}}, {{EMAIL}}, {{PHONE_IF}}, {{PORTFOLIO}}, {{LINKEDIN}}, {{DATE}}
-\documentclass[11pt,a4paper]{letter}
+% cl.tex — dynamic Cover Letter template
+% Placeholders substituted by the Makefile.
+
+\documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
-\usepackage{parskip}
 \usepackage{xcolor}
+\usepackage{parskip}
 
 \hypersetup{
     colorlinks=true,
+    linkcolor=black,
     urlcolor=blue!60!black
 }
 
-\signature{{{NAME}}}
-\address{{{NAME}}\\{{LOCATION}}\\{{PHONE_IF}}\href{mailto:{{EMAIL}}}{{{EMAIL}}}\\Portfolio: \href{{{PORTFOLIO}}}{{{PORTFOLIO}}}\\LinkedIn: \href{{{LINKEDIN}}}{{{LINKEDIN}}}}
+\pagestyle{empty}
 
 \begin{document}
 
-\begin{letter}{Hiring Manager\\{{COMPANY}}}
+\begin{flushright}
+{{NAME}}\\
+{{LOCATION}}\\
+{{PHONE_IF}}\href{mailto:{{EMAIL}}}{{{EMAIL}}}\\
+\href{{{PORTFOLIO}}}{Portfolio} \quad|\quad \href{{{LINKEDIN}}}{LinkedIn}\\[6pt]
+{{DATE}}
+\end{flushright}
 
-\opening{Dear Hiring Manager,}
+\vspace{12pt}
 
-I am writing to express my strong interest in the \textbf{{{JOB_TITLE}}} position {{JOB_TYPE_PHRASE}} at \textbf{{{COMPANY}}}. With over six years of hands-on experience in video editing and post-production—spanning short films, documentaries, and advertisements—I am excited by the opportunity to contribute my technical precision and creative storytelling skills to your team.
+\noindent Hiring Manager\\
+{{COMPANY}}
 
-My background combines rigorous academic training (BA Hons Film Production, 2:1 from Solent University) with practical leadership roles. As Head of Sound on the short film \textit{Rotten Tomatoes}, I managed the full audio pipeline from location recording through final mix. As Main Editor on both the psychological thriller \textit{Date Night} and the documentary \textit{Dysphoria}, I shaped narrative structure, pacing, and emotional tone while collaborating closely with directors. I have also directed a short horror film end-to-end, strengthening my ability to lead teams under production pressure.
+\vspace{12pt}
 
-I am highly proficient in Adobe Premiere Pro, Final Cut Pro, and DaVinci Resolve, with solid experience in sound design, foley, basic colour grading, and maintaining continuity and rhythm. I thrive in collaborative environments and take pride in translating a director’s or client’s vision into polished, emotionally resonant work.
+\noindent Dear Hiring Manager,
 
-I would welcome the chance to discuss how my experience and passion for visual storytelling can support {{COMPANY}}’s projects. Thank you for considering my application. I look forward to the possibility of contributing to your team.
+\vspace{6pt}
 
-\closing{Yours sincerely,}
+I am writing to express my interest in the \textbf{{{JOB_TITLE}}} {{JOB_TYPE_PHRASE}} position at {{COMPANY}}. {{OPENING}}
 
-\end{letter}
+{{BODY}}
+
+{{CLOSING}}
+
+\vspace{18pt}
+
+\noindent Yours sincerely,\\[18pt]
+{{NAME}}
+
 \end{document}
