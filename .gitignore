@@ -1,0 +1,6 @@
+build/
+*.aux
+*.log
+*.out
+*.pdf
+!README.md

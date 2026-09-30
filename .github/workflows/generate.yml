@@ -1,0 +1,124 @@
+name: Generate CV & Cover Letter
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_title:
+        description: "Job title (e.g. Video Editor)"
+        required: true
+        type: string
+        default: "Video Editor"
+      company:
+        description: "Company name"
+        required: true
+        type: string
+        default: "Example Company"
+      job_type:
+        description: "Optional job type (full-time, contract, internship…)"
+        required: false
+        type: string
+        default: ""
+      include_phone:
+        description: "Include phone number on CV & CL"
+        required: true
+        type: boolean
+        default: true
+      host_on_github:
+        description: "Deploy generated pack to GitHub Pages"
+        required: true
+        type: boolean
+        default: false
+      cv_only:
+        description: "Generate CV only (skip cover letter)"
+        required: true
+        type: boolean
+        default: false
+
+# Permissions needed for Pages deploy
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install TeX Live (minimal + required packages)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            lmodern \
+            make
+
+      - name: Prepare parameters
+        id: params
+        run: |
+          echo "JOB_TITLE=${{ inputs.job_title }}" >> $GITHUB_ENV
+          echo "COMPANY=${{ inputs.company }}" >> $GITHUB_ENV
+          echo "JOB_TYPE=${{ inputs.job_type }}" >> $GITHUB_ENV
+          echo "INCLUDE_PHONE=${{ inputs.include_phone }}" >> $GITHUB_ENV
+          echo "CV_ONLY=${{ inputs.cv_only }}" >> $GITHUB_ENV
+          # Fixed personal details (edit here or move to secrets if preferred)
+          echo "NAME=Manjil Sahani" >> $GITHUB_ENV
+          echo "LOCATION=Swindon, United Kingdom" >> $GITHUB_ENV
+          echo "PHONE=+44 0 0" >> $GITHUB_ENV
+          echo "EMAIL=sahanimanjil17@outlook.com" >> $GITHUB_ENV
+          echo "PORTFOLIO=https://manjilfr.wixsite.com/portfolio" >> $GITHUB_ENV
+          echo "LINKEDIN=https://www.linkedin.com/in/manjil-sahani-0317a624" >> $GITHUB_ENV
+
+      - name: Build (same targets as local Makefile)
+        run: |
+          make all \
+            JOB_TITLE="$JOB_TITLE" \
+            COMPANY="$COMPANY" \
+            JOB_TYPE="$JOB_TYPE" \
+            INCLUDE_PHONE="$INCLUDE_PHONE" \
+            CV_ONLY="$CV_ONLY" \
+            NAME="$NAME" \
+            LOCATION="$LOCATION" \
+            PHONE="$PHONE" \
+            EMAIL="$EMAIL" \
+            PORTFOLIO="$PORTFOLIO" \
+            LINKEDIN="$LINKEDIN"
+
+      - name: Upload artifact (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-pack
+          path: build/
+          retention-days: 14
+
+      # ---------- Optional: GitHub Pages ----------
+      - name: Setup Pages
+        if: ${{ inputs.host_on_github }}
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: ${{ inputs.host_on_github }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/
+
+  deploy:
+    if: ${{ inputs.host_on_github }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
