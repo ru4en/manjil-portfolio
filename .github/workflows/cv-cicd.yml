@@ -1,0 +1,120 @@
+name: CV and Cover Letter CI/CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_title:
+        description: Job title
+        required: true
+        type: string
+      company:
+        description: Company name
+        required: true
+        type: string
+      job_option_type:
+        description: Job option type (remote/hybrid/onsite)
+        required: true
+        type: string
+      include_phone:
+        description: Include phone number in generated files
+        required: true
+        default: false
+        type: boolean
+      host_on_github:
+        description: Host generated files on GitHub Pages
+        required: true
+        default: false
+        type: boolean
+      send_email:
+        description: Send generated files by email
+        required: true
+        default: false
+        type: boolean
+      cv_only:
+        description: Generate CV only (skip cover letter)
+        required: true
+        default: false
+        type: boolean
+      recipient_email:
+        description: Optional recipient email (falls back to DEFAULT_EMAIL_TO secret)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_name: ${{ steps.meta.outputs.artifact_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate CV and cover letter
+        run: |
+          python scripts/generate_documents.py \
+            --job-title "${{ inputs.job_title }}" \
+            --company "${{ inputs.company }}" \
+            --job-option-type "${{ inputs.job_option_type }}" \
+            --include-phone "${{ inputs.include_phone }}" \
+            --cv-only "${{ inputs.cv_only }}" \
+            --output-dir site
+
+      - name: Build metadata
+        id: meta
+        run: |
+          SAFE_COMPANY=$(echo "${{ inputs.company }}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')
+          SAFE_TITLE=$(echo "${{ inputs.job_title }}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')
+          ARTIFACT_NAME="application-${SAFE_COMPANY}-${SAFE_TITLE}"
+          echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.artifact_name }}
+          path: site
+
+      - name: Send application by email
+        if: ${{ inputs.send_email }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "Application: ${{ inputs.job_title }} at ${{ inputs.company }}"
+          to: ${{ inputs.recipient_email != '' && inputs.recipient_email || secrets.DEFAULT_EMAIL_TO }}
+          from: ${{ secrets.SMTP_FROM }}
+          body: |
+            Please find attached the generated application files.
+            Job Title: ${{ inputs.job_title }}
+            Company: ${{ inputs.company }}
+            Job Option Type: ${{ inputs.job_option_type }}
+          attachments: ${{ inputs.cv_only && 'site/cv.md' || 'site/cv.md,site/cover_letter.md' }}
+
+      - name: Upload GitHub Pages artifact
+        if: ${{ inputs.host_on_github }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy-pages:
+    if: ${{ inputs.host_on_github }}
+    needs: generate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
