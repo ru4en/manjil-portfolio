@@ -33,6 +33,21 @@ on:
           - director
           - general
         default: auto
+      technical_skills:
+        description: "★ PASTE technical skills from the job description (leave blank to use FOCUS preset). Example: Adobe Premiere Pro, DaVinci Resolve, colour grading, Avid Media Composer"
+        required: false
+        type: string
+        default: ""
+      professional_skills:
+        description: "★ PASTE professional/soft skills from the job description (leave blank to use FOCUS preset). Example: Working to deadlines, collaboration, attention to detail"
+        required: false
+        type: string
+        default: ""
+      profile:
+        description: "Optional full Personal Profile paragraph (leave blank to use FOCUS preset)"
+        required: false
+        type: string
+        default: ""
       include_phone:
         description: "Include phone number on CV & CL"
         required: true
@@ -86,6 +101,21 @@ jobs:
           echo "FOCUS=${{ inputs.focus }}" >> $GITHUB_ENV
           echo "INCLUDE_PHONE=${{ inputs.include_phone }}" >> $GITHUB_ENV
           echo "CV_ONLY=${{ inputs.cv_only }}" >> $GITHUB_ENV
+
+          # Only set skill/profile overrides when the user actually pasted something
+          if [ -n "${{ inputs.technical_skills }}" ]; then
+            echo "TECHNICAL_SKILLS=${{ inputs.technical_skills }}" >> $GITHUB_ENV
+            echo "Using pasted TECHNICAL_SKILLS"
+          fi
+          if [ -n "${{ inputs.professional_skills }}" ]; then
+            echo "PROFESSIONAL_SKILLS=${{ inputs.professional_skills }}" >> $GITHUB_ENV
+            echo "Using pasted PROFESSIONAL_SKILLS"
+          fi
+          if [ -n "${{ inputs.profile }}" ]; then
+            echo "PROFILE=${{ inputs.profile }}" >> $GITHUB_ENV
+            echo "Using pasted PROFILE"
+          fi
+
           # Fixed personal details (edit here or move to secrets if preferred)
           echo "NAME=Manjil Sahani" >> $GITHUB_ENV
           echo "LOCATION=Swindon, United Kingdom" >> $GITHUB_ENV
@@ -96,19 +126,31 @@ jobs:
 
       - name: Build (same targets as local Makefile)
         run: |
-          make all \
-            JOB_TITLE="$JOB_TITLE" \
-            COMPANY="$COMPANY" \
-            JOB_TYPE="$JOB_TYPE" \
-            FOCUS="$FOCUS" \
-            INCLUDE_PHONE="$INCLUDE_PHONE" \
-            CV_ONLY="$CV_ONLY" \
-            NAME="$NAME" \
-            LOCATION="$LOCATION" \
-            PHONE="$PHONE" \
-            EMAIL="$EMAIL" \
-            PORTFOLIO="$PORTFOLIO" \
+          # Build the make argument list dynamically so empty skills don't wipe presets
+          ARGS=(
+            JOB_TITLE="$JOB_TITLE"
+            COMPANY="$COMPANY"
+            JOB_TYPE="$JOB_TYPE"
+            FOCUS="$FOCUS"
+            INCLUDE_PHONE="$INCLUDE_PHONE"
+            CV_ONLY="$CV_ONLY"
+            NAME="$NAME"
+            LOCATION="$LOCATION"
+            PHONE="$PHONE"
+            EMAIL="$EMAIL"
+            PORTFOLIO="$PORTFOLIO"
             LINKEDIN="$LINKEDIN"
+          )
+          if [ -n "${TECHNICAL_SKILLS:-}" ]; then
+            ARGS+=(TECHNICAL_SKILLS="$TECHNICAL_SKILLS")
+          fi
+          if [ -n "${PROFESSIONAL_SKILLS:-}" ]; then
+            ARGS+=(PROFESSIONAL_SKILLS="$PROFESSIONAL_SKILLS")
+          fi
+          if [ -n "${PROFILE:-}" ]; then
+            ARGS+=(PROFILE="$PROFILE")
+          fi
+          make all "${ARGS[@]}"
 
       - name: Upload artifact (always)
         uses: actions/upload-artifact@v4

@@ -1,5 +1,7 @@
-% cv.tex — parameterized CV template
-% Placeholders: {{INCLUDE_PHONE}}, {{PHONE}}, {{NAME}}, {{LOCATION}}, {{EMAIL}}, {{PORTFOLIO}}, {{LINKEDIN}}
+% cv.tex — dynamic CV template
+% All content is injected by the Makefile via {{PLACEHOLDERS}}.
+% Do not put real personal data here; edit the Makefile defaults or pass env vars.
+
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=0.7in]{geometry}
@@ -22,6 +24,9 @@
 
 \begin{document}
 
+% ─────────────────────────────────────────────
+% HEADER
+% ─────────────────────────────────────────────
 \begin{center}
     {\LARGE\bfseries {{NAME}}}\\[4pt]
     {{LOCATION}}\\[2pt]
@@ -31,58 +36,36 @@
 
 \vspace{6pt}
 
+% ─────────────────────────────────────────────
+% PERSONAL PROFILE  (job / focus dependent)
+% ─────────────────────────────────────────────
 \section{Personal Profile}
-Dedicated and creatively driven video editor with over six years of hands-on experience in post-production, spanning short films, documentaries, and advertisements. My passion for storytelling began with editing personal projects and evolved into a refined professional skillset through academic training at Solent University. I excel at interpreting a director’s or client’s vision and transforming it into compelling, emotionally resonant visual narratives. Skilled in both technical execution and creative decision-making, I bring precision, adaptability, and strong collaborative energy to every project.
+{{PROFILE}}
 
+% ─────────────────────────────────────────────
+% EDUCATION
+% ─────────────────────────────────────────────
 \section{Education}
-\textbf{Solent University, Southampton}\\
-BA (Hons) Film Production \hfill 2021 - 2024\\
-Upper Second-Class Honours (2:1)
+{{EDUCATION}}
+
+% ─────────────────────────────────────────────
+% WORK EXPERIENCE
+% ─────────────────────────────────────────────
+\section{Work Experience}
+{{EXPERIENCE}}
+
+% ─────────────────────────────────────────────
+% SKILLS  (fully dynamic)
+% ─────────────────────────────────────────────
+\section{Skills}
+\textbf{Technical Skills:} {{TECHNICAL_SKILLS}}
 
 \vspace{4pt}
-\textbf{New College, Swindon}\\
-BTEC National Extended Diploma in Computing \hfill 2019 - 2021\\
-Grade: MMM (Equivalent to 3 A Levels)
+\textbf{Professional Skills:} {{PROFESSIONAL_SKILLS}}
 
-\section{Work Experience}
-\textbf{Head of Sound - Rotten Tomatoes (FMP Short Film)}\\
-September 2023 - June 2024
-\begin{itemize}
-    \item Led the complete audio department, overseeing both production and post-production sound.
-    \item Captured high-quality location audio including dialogue, ambience, and foley.
-    \item Designed and implemented soundscapes to enhance mood and narrative depth.
-    \item Collaborated with the director and editor to ensure audio aligned seamlessly with the visual direction.
-    \item Delivered a polished final sound mix balancing dialogue, effects, and score.
-\end{itemize}
-
-\textbf{Main Editor - Date Night (Short Psychological Thriller)}\\
-January 2023 - May 2023
-\begin{itemize}
-    \item Managed full post-production, including narrative editing, rhythm, sound design, and pacing.
-    \item Worked closely with the director to preserve tone, tension, and thematic intent.
-    \item Ensured smooth storytelling flow through precise scene assembly and continuity management.
-\end{itemize}
-
-\textbf{Main Editor - Dysphoria (Short Documentary)}\\
-September 2022 - January 2023
-\begin{itemize}
-    \item Oversaw the entire edit of a documentary exploring transgender experiences.
-    \item Structured interviews and story arcs to create a cohesive, respectful narrative.
-    \item Performed audio cleanup, basic colour correction, and visual refinement.
-    \item Ensured the final film handled sensitive topics with care and authenticity.
-\end{itemize}
-
-\textbf{Director - Hotel Room Horror (Short Horror Film)}\\
-September 2022 - January 2023
-\begin{itemize}
-    \item Directed all phases of production from concept development to final delivery.
-    \item Led a creative team, organized schedules, conducted casting, and managed set operations.
-    \item Strengthened leadership, communication, and problem-solving abilities under production pressures.
-\end{itemize}
-
-\section{Skills}
-\textbf{Technical Skills:} Advanced proficiency in Adobe Premiere Pro, Final Cut Pro, and DaVinci Resolve. Strong understanding of pacing, continuity, rhythm, and narrative structure. Experience with sound editing, foley work, and basic colour grading.
-
-\textbf{Professional Skills:} Creative collaboration, adaptability, organisation, and leadership in post-production contexts.
+% ─────────────────────────────────────────────
+% OPTIONAL EXTRA SECTIONS (Projects, Awards …)
+% ─────────────────────────────────────────────
+{{ADDITIONAL_SECTIONS}}
 
 \end{document}
